@@ -17,6 +17,7 @@ namespace {
         for (auto &I : B) {
           if (auto *op = dyn_cast<BinaryOperator>(&I)) {
             op->swapOperands();
+            changed = true;
           }
         }
       }
