@@ -13,5 +13,4 @@ Build:
 
 Run:
 
-    $ clang -emit-llvm -c -o something.bc something.c
-    $ opt -load build/lib/SkeletonPass.* -skeleton something.bc
+    $ clang -Xclang -load -Xclang build/lib/SkeletonPass.* something.c
