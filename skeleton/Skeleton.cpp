@@ -11,8 +11,7 @@ namespace {
     SkeletonPass() : FunctionPass(ID) {}
 
     virtual bool runOnFunction(Function &F) {
-      errs() << "Hello: ";
-      errs().write_escaped(F.getName()) << '\n';
+      errs() << "I saw a function called " << F.getName() << "!\n";
       return false;
     }
   };
