@@ -3,4 +3,7 @@ add_llvm_loadable_module(SkeletonPass
     Skeleton.cpp
 )
 
-set_target_properties(SkeletonPass PROPERTIES COMPILE_FLAGS "-std=c++11" )
+set_target_properties(SkeletonPass PROPERTIES
+    COMPILE_FLAGS "-std=c++11 -fno-rtti"
+    LINK_FLAGS "-undefined dynamic_lookup"
+)
