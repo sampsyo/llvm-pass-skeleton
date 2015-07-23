@@ -4,9 +4,9 @@
 using namespace llvm;
 
 namespace {
-  struct Hello : public FunctionPass {
+  struct SkeletonPass : public FunctionPass {
     static char ID;
-    Hello() : FunctionPass(ID) {}
+    SkeletonPass() : FunctionPass(ID) {}
 
     virtual bool runOnFunction(Function &F) {
       errs() << "Hello: ";
@@ -16,5 +16,5 @@ namespace {
   };
 }
 
-char Hello::ID = 0;
-static RegisterPass<Hello> X("hello", "Hello World Pass");
+char SkeletonPass::ID = 0;
+static RegisterPass<SkeletonPass> X("skeleton", "my great code transform");
