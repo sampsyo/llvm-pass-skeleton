@@ -1,1 +1,4 @@
-add_library(SkeletonPass MODULE Skeleton.cpp)
+add_llvm_loadable_module(SkeletonPass
+    # List your source files here.
+    Skeleton.cpp
+)
