@@ -2,6 +2,7 @@
 #include "llvm/IR/Function.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/LegacyPassManager.h"
+#include "llvm/IR/InstrTypes.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 using namespace llvm;
 
@@ -11,22 +12,16 @@ namespace {
     SkeletonPass() : FunctionPass(ID) {}
 
     virtual bool runOnFunction(Function &F) {
-      errs() << "In a function called " << F.getName() << "!\n";
-
-      errs() << "Function body:\n";
-      F.dump();
-
+      bool changed = false;
       for (auto &B : F) {
-        errs() << "Basic block:\n";
-        B.dump();
-
         for (auto &I : B) {
-          errs() << "Instruction: ";
-          I.dump();
+          if (auto *op = dyn_cast<BinaryOperator>(&I)) {
+            op->swapOperands();
+          }
         }
       }
 
-      return false;
+      return changed;
     }
   };
 }
