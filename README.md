@@ -13,4 +13,4 @@ Build:
 
 Run:
 
-    $ clang -Xclang -load -Xclang build/lib/SkeletonPass.* something.c
+    $ clang -Xclang -load -Xclang build/skeleton/libSkeletonPass.* something.c
