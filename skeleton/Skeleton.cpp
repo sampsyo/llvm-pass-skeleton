@@ -28,7 +28,7 @@ namespace {
             // Everywhere the old instruction was used as an operand, use our
             // new multiply instruction instead.
             for (auto &U : op->uses()) {
-              User *user = U.getUser();
+              User *user = U.getUser();  // A User is anything with operands.
               user->setOperand(U.getOperandNo(), mul);
             }
 
