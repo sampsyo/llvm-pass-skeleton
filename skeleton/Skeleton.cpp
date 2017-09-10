@@ -17,9 +17,9 @@ namespace {
     virtual bool runOnFunction(Function &F) {
       // Get the function to call from our runtime library.
       LLVMContext &Ctx = F.getContext();
-      std::vector<Type*> paramsType = {Type::getInt32Ty(Ctx)};
+      std::vector<Type*> paramTypes = {Type::getInt32Ty(Ctx)};
       Type *retType = Type::getVoidTy(Ctx);
-      FunctionType *logFuncType = FunctionType::get(retType,paramsType,false);
+      FunctionType *logFuncType = FunctionType::get(retType, paramTypes, false);
       Constant *logFunc = F.getParent()->getOrInsertFunction("logop", logFuncType);
 
       for (auto &B : F) {
