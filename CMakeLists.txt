@@ -7,5 +7,6 @@ link_directories(${LLVM_LIBRARY_DIRS})
 
 add_subdirectory(skeleton)
 add_subdirectory(static-callgraph)
+add_subdirectory(dynamic-callgraph)
 
 add_subdirectory(samples)

@@ -21,3 +21,27 @@ add_custom_target(static-cg ALL
   COMMAND cmake -E copy callgraph.dot static-callgraph.dot
   COMMAND dot -Tpdf -ostatic-callgraph.pdf static-callgraph.dot
   DEPENDS StaticCallGraphPass d.ll VERBATIM)
+
+# Add commands for obtaining and viewing the dynamic callgraph for two different
+# scenarios - one where we invoke the program with normal arguments and one
+# where it should error out. During compilation we use the DynamicCallGraphPass,
+# which instruments the code. The callgraphs are obtained when running the
+# generated executable.
+add_custom_target(d-instr.ll ALL
+  opt d.ll -load $<TARGET_FILE:DynamicCallGraphPass> -dynamic-call-graph -S -o d-instr.ll
+  DEPENDS DynamicCallGraphPass d.ll VERBATIM)
+
+add_custom_target(d ALL
+  clang d-instr.ll -lcallgraph -o d
+  DEPENDS d-instr.ll VERBATIM)
+
+add_custom_target(dynamic-cg-error
+  not ./d COMMAND cmake -E copy callgraph.dot dynamic-callgraph-error.dot
+  COMMAND dot -Tpdf -odynamic-callgraph-error.pdf dynamic-callgraph-error.dot
+  DEPENDS d VERBATIM)
+
+add_custom_target(dynamic-cg-normal
+  ./d ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND cmake -E copy callgraph.dot dynamic-callgraph-normal.dot
+  COMMAND dot -Tpdf -odynamic-callgraph-normal.pdf dynamic-callgraph-normal.dot
+  DEPENDS d VERBATIM)
