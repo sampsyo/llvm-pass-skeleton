@@ -1,6 +1,6 @@
 # Command Line Cheatsheet
 
-##Recap:
+## Recap:
 Obtaining an executable:
 
     clang hello.c -o hello
@@ -13,7 +13,7 @@ Obtaining an object file:
 
     clang -c hello.c -o hello.o
 
-##Obtaining LLVM IR:
+## Obtaining LLVM IR:
 Textual form:
 
     clang -S -emit-llvm hello.c -o hello.ll
@@ -22,31 +22,31 @@ Binary form (bitcode):
 
     clang -c -emit-llvm hello.c -o hello.bc
 
-##Transforming LLVM IR:
+## Transforming LLVM IR:
 By default, `opt` produces bitcode. Use `-S` to obtain textual IR.
 
     opt -pass1 [...] -passN hello.ll -o hello.bc
 
     opt -pass1 [...] -passN hello.ll -S -o hello.ll
 
-##Obtaining machine code:
+## Obtaining machine code:
 By default, `llc` produces assembly. Use `-filetype=obj` to obtain an object file.
 
     llc hello.ll -o hello.s
 
     llc -filetype=obj hello.ll -o hello.o
 
-##Obtaining the results of program execution:
+## Obtaining the results of program execution:
 
     lli hello.ll
 
-##Verifying an IR module:
+## Verifying an IR module:
 This is useful for checking that your pass created a well-formed module:
 
     opt -verify in.ll -o /dev/null
 
 #LLVM API Cheatsheet
-##Iterating through the IR:
+## Iterating through the IR:
 `Module` provides `begin()` and `end()` for iterating through the functions in the module.
 `Function` provides `begin()` and `end()` for iterating through the basic blocks in the function.
 `BasicBlock` provides `begin()` and `end()` for iterating through the instructions in the function.
@@ -61,9 +61,9 @@ This is useful for checking that your pass created a well-formed module:
 Other useful iterators:
 `Module::global_begin()` and `global_end()` - iterate through the globals in the module.
 `Function::arg_begin()` and `arg_end()` - iterate through the function’s arguments.
-##Dumping IR Objects:
+## Dumping IR Objects:
 Most IR objects (modules, functions, basic blocks, instructions etc) have a `dump()` method. They can usually also be printed to a stream via the `<<` operator. Streams often used for dumping objects are `dbgs()`, `errs()` and `outs()`.
-##Identifying IR Objects:
+## Identifying IR Objects:
 Objects in the Value hierarchy use a custom, LLVM-specific RTTI system that allows us to check their types and cast between them via the `isa<>`, `cast<>` and `dyn_cast<>` templates (see [the relevant section](https://releases.llvm.org/5.0.0/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates) in the [LLVM Programmer’s Manual](https://releases.llvm.org/5.0.0/docs/ProgrammersManual.html)):
 
     isa<ReturnInst>(&I) // Returns true or false
@@ -72,7 +72,7 @@ Objects in the Value hierarchy use a custom, LLVM-specific RTTI system that allo
       dyn_cast<CallInst>(&I) // Returns a CallInst* or nullptr
 
 You can also check whether a `Value` is a `Constant`, a `ConstantInt`, an `Instruction`, a `BinaryOperator`, a `StoreInst`, a `TerminatorInst` etc. You should use `isa<>` when you only need a Boolean answer, and `dyn_cast<>` when you actually need more specific information about the `Value`.
-##CallInst Deep Dive:
+## CallInst Deep Dive:
 A `CallInst` contains a lot of information related to the call. We summarize the parts that could be useful for the workshop here.
 
 Processing call arguments:
@@ -86,14 +86,14 @@ Getting the called function:
 
     Function *getCalledFunction(); // Returns null for indirect calls
 
-##`ConstantInt` Deep Dive:
+## `ConstantInt` Deep Dive:
 A `ConstantInt` wraps around an `APInt` (arbitrary precision integer), which can represent a very large range of integers. For our limited use case, the most interesting method is probably
 
     uint64_t getLimitedValue(uint64_t Limit) const;
 
 This will return either the integer itself if it is smaller than the limit, or the `Limit` otherwise.
 
-##Adding new functions:
+## Adding new functions:
 Before calling a function, you must first make sure that at least its declaration exists in the `Module`. For this, use this `Module` method:
 
     Constant *getOrInsertFunction(StringRef Name, FunctionType *T);
@@ -103,7 +103,7 @@ This returns a `Constant *`, but if you’re passing in the correct `FunctionTyp
     auto *AddedFunc =
       cast<Function>(M.getOrInsertFunction(FunctionName, FunctionType));
 
-##Working with Types:
+## Working with Types:
 You can get many simple types by using static methods from the Type class:
 
     static Type *getVoidTy(LLVMContext &C);
@@ -120,7 +120,7 @@ Composite types such as `FunctionType` have their own static methods:
     //                        { Type::getInt8PtrTy(Ctx),
     //                          Type::getInt32Ty(Ctx) }, false);
 
-##Inserting LLVM IR:
+## Inserting LLVM IR:
 The easiest way to create and insert new LLVM IR into a function is to use the `IRBuilder` class. The first thing you need to do when using it is to make sure you are inserting things in the correct place - i.e. that the insertion point of the `IRBuilder` is where you want it to be.
 
 The IRBuilder has many constructors, but for this workshop we recommend using this one:
@@ -162,11 +162,11 @@ Methods for adding constants:
     Value *CreateGlobalStringPtr(StringRef Str, const Twine &Name = "",
                                  unsigned AddressSpace = 0);
 
-##Replacing uses:
+## Replacing uses:
 Replacing all uses of a `Value` with another `Value` is a common operation in a compiler.
 
     void Value::replaceAllUsesWith(Value *V).
 
 Note that `Value` may be an `Instruction`, a `Constant` etc. Also note that this does not remove the old `Value` from the IR - it just makes any place that references it to reference the new `Value` instead.
-##Removing instructions:
+## Removing instructions:
 Use `Instruction::eraseFromParent()`. Beware that this will invalidate any iterators into the parent (which means that you shouldn’t call it from a loop that iterates over the parent).

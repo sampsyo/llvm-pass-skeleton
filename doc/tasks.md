@@ -24,7 +24,7 @@ Feel free to look at the CFGs before and after if you prefer:
 
 Make sure you have passed `-Xclang -disable-O0-optnone` to `clang`, otherwise you probably won’t be seeing any difference.
 
-##Task 2 - Automatic Vectorization
+## Task 2 - Automatic Vectorization
 For this exercise, we’re going to work with the bpk.c sample.
 
 **TODO 1**: Get the LLVM IR corresponding to [bpk.c](https://github.com/rovka/llvm-pass-skeleton/blob/master/samples/bpk.c) and run the loop vectorization pass on it (don’t forget to pass `-Xclang -disable-O0-optnone`):
@@ -45,7 +45,7 @@ You can also obtain extra info with `-debug-only=loop-vectorize`.
 
 How was the IR transformed this time? You can also look at the IR right after loop rotate to see what form the loops need to be in so the loop vectorizer can work with them.
 
-##Task 3 - Analysing the LLVM IR
+## Task 3 - Analysing the LLVM IR
 With this exercise we’re going to start diving into the LLVM APIs. Use the code in [llvm-pass-skeleton/skeleton/Skeleton.cpp](https://github.com/rovka/llvm-pass-skeleton/blob/master/skeleton/Skeleton.cpp). This currently contains a skeleton for a pass. It will be compiled into a shared library that can be loaded into `clang` or `opt`.
 
 Building the shared library:
@@ -80,7 +80,7 @@ Note that this target doesn’t pass the `-debug-only` flag, so don’t use the 
 
 **TODO 3**: Narrow the analysis even more by printing only calls to the `fib` function with constant arguments. You can use the `isFibFunction` helper to check if a function is the `fib` function with the signature that we expect.
 
-##Task 4 - Transforming the IR
+## Task 4 - Transforming the IR
 
 After identifying all the calls to `fib` with constant arguments in the previous task, we can now do something about them - since the argument is constant, we can know the result at compile time, and replace the function call with this result.
 
@@ -99,7 +99,7 @@ Remove the calls yourself in the same pass, after replacing their uses. The cave
 *Option 2*:
 Try to use the Aggressive Dead Code Elimination pass (`-adce`) to remove the calls. Why doesn’t it work out of the box? Try to follow the code in [lib/Transforms/Scalar/ADCE.cpp](https://github.com/llvm-mirror/llvm/blob/release_50/lib/Transforms/Scalar/ADCE.cpp).
 
-##Task 5 - Static Call Graph
+## Task 5 - Static Call Graph
 For this task we will use the code skeleton in [llvm-pass-skeleton/static-callgraph/StaticCallGraph.cpp](https://github.com/rovka/llvm-pass-skeleton/blob/master/static-callgraph/StaticCallGraph.cpp). This contains a pass skeleton which should dump a dot file representing the call graph of the module, which is a graph of the functions in the module with edges from each function to the functions that it may call.
 
 For this we use a library consisting of 3 functions:
@@ -139,7 +139,7 @@ Feel free to compare with
 
     opt -view-callgraph samples/d.ll
 
-##Task 6 - Dynamic Call Graph
+## Task 6 - Dynamic Call Graph
 For this task we will use the code skeleton in [llvm-pass-skeleton/dynamic-callgraph/DynamicCallGraph.cpp](https://github.com/rovka/llvm-pass-skeleton/blob/master/dynamic-callgraph/DynamicCallGraph.cpp). We will try to obtain the dynamic call graph instead of the static one - this is a subset of the static call graph that we obtained in the previous task, but containing only the calls that were actually performed when running the executable.
 
 For this, we will instrument the IR so that the call graph library is used at runtime by the program that we are compiling. Before each call instruction, we will insert code that calls the `print_edge` function. We must also make sure that `print_prologue` is called right after the program begins execution, and `print_epilogue` is called right before the program exits.
@@ -181,7 +181,7 @@ For convenience, we have two shortcut targets:
 
 **TODO 3**: Identify all call instructions and introduce calls to `print_edge` before them. Note that you will have to create the strings that you need to pass to `print_edge`, representing the names of the functions. These should be some global variables storing the names, and you should pass pointers to them to `print_edge`. Make sure you don’t add calls to `print_edge` for any of the calls that we have added as part of the instrumentation (`print_prologue`, `print_epilogue`).
 
-##Bonus Task - `snprintf` Optimization
+## Bonus Task - `snprintf` Optimization
 
 The `snprintf` function can be used to print formatted strings into buffers:
 
