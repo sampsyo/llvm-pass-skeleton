@@ -4,7 +4,7 @@ The purpose of the workshop was to introduce people to the LLVM IR and middle en
 
 We used a virtual machine for the workshop. You can reproduce that setup by following [these instructions](https://goo.gl/M5DomW).
 
-You can find the tasks for the workshop and an LLVM cheatsheet [here](https://goo.gl/UBZPnW). We also had some [slides](https://goo.gl/ee4Efv).
+You can find the tasks for the workshop and an LLVM cheatsheet in the `doc` directory. We also had some [slides](https://goo.gl/ee4Efv).
 
 We're going to slowly move all that information into this repo. Stay tuned.
 
