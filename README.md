@@ -6,6 +6,8 @@ We used a virtual machine for the workshop. You can reproduce that setup by foll
 
 You can find the tasks for the workshop and an LLVM cheatsheet in the `doc` directory. You will also find some slides that we have used to explain a few points about LLVM IR as well as the LLVM API.
 
+Most of the (new) material in this repo has been authored by Diana Picus and Roberto Castañeda Lozano.
+
 Special thanks to Adrian Sampson, whose excellent [tutorial](https://www.cs.cornell.edu/~asampson/blog/llvm.html) we have used as a starting point. Note that we have updated the original code to work with LLVM 5.0.
 
 # Original README (Adrian Sampson):
