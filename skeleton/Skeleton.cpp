@@ -14,15 +14,16 @@ namespace {
       errs() << "In a function called " << F.getName() << "!\n";
 
       errs() << "Function body:\n";
-      F.dump();
+      //F.dump(); Out-of-Date: no more dump support in modern llvm unless you enable it at compile time.
+      F->print(llvm::errs(), nullptr);
 
       for (auto &B : F) {
         errs() << "Basic block:\n";
-        B.dump();
+        B->print(llvm::errs(), nullptr);
 
         for (auto &I : B) {
           errs() << "Instruction: ";
-          I.dump();
+          I->print(llvm::errs(), nullptr);
         }
       }
 
