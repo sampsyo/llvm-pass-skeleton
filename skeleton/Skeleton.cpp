@@ -24,6 +24,7 @@ namespace {
         for (auto &I : B) {
           errs() << "Instruction: \n";
           I.print(llvm::errs(), true);
+          errs() << "\n";
         }
       }
 
