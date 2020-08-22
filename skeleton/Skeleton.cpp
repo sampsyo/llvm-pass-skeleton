@@ -20,7 +20,8 @@ namespace {
       std::vector<Type*> paramTypes = {Type::getInt32Ty(Ctx)};
       Type *retType = Type::getVoidTy(Ctx);
       FunctionType *logFuncType = FunctionType::get(retType, paramTypes, false);
-      Constant *logFunc = F.getParent()->getOrInsertFunction("logop", logFuncType);
+      FunctionCallee logFunc = 
+       F.getParent()->getOrInsertFunction("logop", logFuncType);
 
       for (auto &B : F) {
         for (auto &I : B) {
