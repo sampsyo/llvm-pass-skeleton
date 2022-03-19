@@ -10,7 +10,7 @@ namespace {
     static char ID;
     SkeletonPass() : FunctionPass(ID) {}
 
-    bool runOnFunction(Function &F) override {
+    virtual bool runOnFunction(Function &F) {
       errs() << "In a function called " << F.getName() << "!\n";
 
       errs() << "Function body:\n";
