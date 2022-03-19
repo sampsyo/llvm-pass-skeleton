@@ -13,5 +13,4 @@ Build:
 
 Run:
 
-    $ clang -O3 -emit-llvm something.c -c -o something.bc
-    $ opt -load build/skeleton/libSkeletonPass.so -enable-new-pm=0 -skeleton -disable-output something.bc
+    $ clang -Xclang -load -flegacy-pass-manager -Xclang build/skeleton/libSkeletonPass.* something.bc
