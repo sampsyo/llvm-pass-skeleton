@@ -1,6 +1,6 @@
 # llvm-pass-skeleton
 
-A completely useless LLVM pass.
+A completely useless LLVM pass written for LLVM-14.0 onwards.
 
 Build:
 
@@ -13,4 +13,4 @@ Build:
 
 Run:
 
-    $ clang -Xclang -load -Xclang build/skeleton/libSkeletonPass.* something.c
+    $ clang -Xclang -load -flegacy-pass-manager -Xclang build/skeleton/libSkeletonPass.* something.c

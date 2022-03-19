@@ -19,7 +19,7 @@ namespace {
 
       for (auto &B : F) {
         errs() << "Basic block:\n";
-        B.print(llvm::errs(), true);
+        B.print(llvm::errs());
 
         for (auto &I : B) {
           errs() << "Instruction: \n";
