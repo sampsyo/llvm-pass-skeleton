@@ -5,13 +5,20 @@
 
 #include  <iostream>
 
-
 using namespace llvm;
+
 namespace {
-struct HelloWorldPass : public PassInfoMixin<HelloWorldPass> {
+
+/*
+ * https://github.com/alexjung/Writing-an-LLVM-Pass-using-the-new-PassManager
+ * and
+ * https://llvm.org/docs/WritingAnLLVMNewPMPass.html
+ * are indispensable for getting a basic understanding of the pass architecture of llvm.
+ */
+struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
 
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
-        std::cout << "HelloWorldPass in function: " << F.getName().str() << std::endl;
+        std::cout << "SkeletonPass in function: " << F.getName().str() << std::endl;
         return PreservedAnalyses::all();
     };
 
@@ -19,13 +26,14 @@ struct HelloWorldPass : public PassInfoMixin<HelloWorldPass> {
         return true;
     }
 };
+
 }
 
 void registerHelloWorldPassBuilderCallback(PassBuilder &PB) {
     PB.registerPipelineParsingCallback(
         [](StringRef Name, FunctionPassManager &FPM, ArrayRef<PassBuilder::PipelineElement>) {
-            if (Name == "hello-world") {
-                FPM.addPass(HelloWorldPass());
+            if (Name == "skeleton") {
+                FPM.addPass(SkeletonPass());
                 return true;
             }
             return false;
@@ -34,7 +42,7 @@ void registerHelloWorldPassBuilderCallback(PassBuilder &PB) {
 }
 
 PassPluginLibraryInfo getHelloWorldPluginInfo() {
-    return {LLVM_PLUGIN_API_VERSION, "HelloWorld", LLVM_VERSION_STRING, registerHelloWorldPassBuilderCallback};
+    return {LLVM_PLUGIN_API_VERSION, "Skeleton", LLVM_VERSION_STRING, registerHelloWorldPassBuilderCallback};
 }
 
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
