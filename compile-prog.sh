@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# Usage: ./compile-prog.sh test/the-prog.c
 
 filepath=$(realpath $1)
 filename=$(dirname $filepath)/$(basename $filepath .c)
