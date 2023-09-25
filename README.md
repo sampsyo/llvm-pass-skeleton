@@ -14,4 +14,4 @@ Build:
 
 Run:
 
-    $ clang -flegacy-pass-manager -Xclang -load -Xclang build/skeleton/libSkeletonPass.* something.c
+    $ clang -fpass-plugin=build/skeleton/libSkeleton.so something.c
