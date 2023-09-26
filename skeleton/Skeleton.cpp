@@ -9,8 +9,9 @@ namespace {
 
 struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
     PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
-        // TK loop over functions
-        errs() << "I saw a function called " << M.getName().str() << "!\n";
+        for (auto &F : M.functions()) {
+            errs() << "I saw a function called " << F.getName() << "!\n";
+        }
         return PreservedAnalyses::all();
     };
 
