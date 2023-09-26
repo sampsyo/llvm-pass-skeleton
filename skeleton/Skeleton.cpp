@@ -1,57 +1,59 @@
 #include "llvm/Pass.h"
-#include "llvm/IR/Function.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/IR/InstrTypes.h"
-#include "llvm/Transforms/IPO/PassManagerBuilder.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
-#include "llvm/IR/Module.h"
 using namespace llvm;
 
 namespace {
-  struct SkeletonPass : public FunctionPass {
-    static char ID;
-    SkeletonPass() : FunctionPass(ID) {}
 
-    virtual bool runOnFunction(Function &F) {
-      // Get the function to call from our runtime library.
-      LLVMContext &Ctx = F.getContext();
-      std::vector<Type*> paramTypes = {Type::getInt32Ty(Ctx)};
-      Type *retType = Type::getVoidTy(Ctx);
-      FunctionType *logFuncType = FunctionType::get(retType, paramTypes, false);
-      FunctionCallee logFunc = 
-       F.getParent()->getOrInsertFunction("logop", logFuncType);
+struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
+        for (auto &F : M.functions()) {
 
-      for (auto &B : F) {
-        for (auto &I : B) {
-          if (auto *op = dyn_cast<BinaryOperator>(&I)) {
-            // Insert *after* `op`.
-            IRBuilder<> builder(op);
-            builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
+            // Get the function to call from our runtime library.
+            LLVMContext &Ctx = F.getContext();
+            std::vector<Type*> paramTypes = {Type::getInt32Ty(Ctx)};
+            Type *retType = Type::getVoidTy(Ctx);
+            FunctionType *logFuncType = FunctionType::get(retType, paramTypes, false);
+            FunctionCallee logFunc =
+                F.getParent()->getOrInsertFunction("logop", logFuncType);
 
-            // Insert a call to our function.
-            Value* args[] = {op};
-            builder.CreateCall(logFunc, args);
+            for (auto &B : F) {
+                for (auto &I : B) {
+                    if (auto *op = dyn_cast<BinaryOperator>(&I)) {
+                        // Insert *after* `op`.
+                        IRBuilder<> builder(op);
+                        builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
 
-            return true;
-          }
+                        // Insert a call to our function.
+                        Value* args[] = {op};
+                        builder.CreateCall(logFunc, args);
+
+                        return PreservedAnalyses::none();
+                    }
+                }
+            }
+
         }
-      }
-
-      return false;
+        return PreservedAnalyses::all();
     }
-  };
+};
+
 }
 
-char SkeletonPass::ID = 0;
-
-// Automatically enable the pass.
-// http://adriansampson.net/blog/clangpass.html
-static void registerSkeletonPass(const PassManagerBuilder &,
-                         legacy::PassManagerBase &PM) {
-  PM.add(new SkeletonPass());
+extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
+llvmGetPassPluginInfo() {
+    return {
+        .APIVersion = LLVM_PLUGIN_API_VERSION,
+        .PluginName = "Skeleton pass",
+        .PluginVersion = "v0.1",
+        .RegisterPassBuilderCallbacks = [](PassBuilder &PB) {
+            PB.registerPipelineStartEPCallback(
+                [](ModulePassManager &MPM, OptimizationLevel Level) {
+                    MPM.addPass(SkeletonPass());
+                });
+        }
+    };
 }
-static RegisterStandardPasses
-  RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-                 registerSkeletonPass);
