@@ -14,7 +14,8 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
             for (auto &B : F) {
                 for (auto &I : B) {
                     if (auto *op = dyn_cast<BinaryOperator>(&I)) {
-                        // Insert at the point where the instruction `op` appears.
+                        // Insert at the point where the instruction `op`
+                        // appears.
                         IRBuilder<> builder(op);
 
                         // Make a multiply with the same operands as `op`.
@@ -22,10 +23,11 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
                         Value *rhs = op->getOperand(1);
                         Value *mul = builder.CreateMul(lhs, rhs);
 
-                        // Everywhere the old instruction was used as an operand, use our
-                        // new multiply instruction instead.
+                        // Everywhere the old instruction was used as an
+                        // operand, use our new multiply instruction instead.
                         for (auto &U : op->uses()) {
-                          User *user = U.getUser();  // A User is anything with operands.
+                          // A User is anything with operands.
+                          User *user = U.getUser();
                           user->setOperand(U.getOperandNo(), mul);
                         }
 
