@@ -14,11 +14,6 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
         }
         return PreservedAnalyses::all();
     };
-
-    // TK delete?
-    static bool isRequired() {
-        return true;
-    }
 };
 
 }
