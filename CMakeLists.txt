@@ -8,10 +8,9 @@ set(CMAKE_CXX_STANDARD 17)
 # to your LLVM installation's `lib/cmake/llvm` directory.
 find_package(LLVM REQUIRED CONFIG)
 
-# The add_llvm_pass_plugin macro is not loaded automatically, so it must be
-# explicitly included.
-# TKTKTK
-include("${LLVM_DIR}/AddLLVM.cmake")
+# Include the part of LLVM's CMake libraries that defines
+# `add_llvm_pass_plugin`.
+include(AddLLVM)
 
 # Use LLVM's preprocessor definitions, include directories, and library search
 # paths.
