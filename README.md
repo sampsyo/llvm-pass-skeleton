@@ -1,7 +1,7 @@
 # llvm-pass-skeleton
 
 A completely useless LLVM pass.
-It's for LLVM 14.
+It's for LLVM 17.
 
 Build:
 
