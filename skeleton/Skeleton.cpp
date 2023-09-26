@@ -1,30 +1,34 @@
 #include "llvm/Pass.h"
-#include "llvm/IR/Function.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/Transforms/IPO/PassManagerBuilder.h"
+
 using namespace llvm;
 
 namespace {
-  struct SkeletonPass : public FunctionPass {
-    static char ID;
-    SkeletonPass() : FunctionPass(ID) {}
 
-    virtual bool runOnFunction(Function &F) {
-      errs() << "I saw a function called " << F.getName() << "!\n";
-      return false;
-    }
-  };
+struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
+        for (auto &F : M.functions()) {
+            errs() << "I saw a function called " << F.getName() << "!\n";
+        }
+        return PreservedAnalyses::all();
+    };
+};
+
 }
 
-char SkeletonPass::ID = 0;
-
-// Automatically enable the pass.
-// http://adriansampson.net/blog/clangpass.html
-static void registerSkeletonPass(const PassManagerBuilder &,
-                         legacy::PassManagerBase &PM) {
-  PM.add(new SkeletonPass());
+extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
+llvmGetPassPluginInfo() {
+    return {
+        .APIVersion = LLVM_PLUGIN_API_VERSION,
+        .PluginName = "Skeleton pass",
+        .PluginVersion = "v0.1",
+        .RegisterPassBuilderCallbacks = [](PassBuilder &PB) {
+            PB.registerPipelineStartEPCallback(
+                [](ModulePassManager &MPM, OptimizationLevel Level) {
+                    MPM.addPass(SkeletonPass());
+                });
+        }
+    };
 }
-static RegisterStandardPasses
-  RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-                 registerSkeletonPass);
