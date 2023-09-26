@@ -31,15 +31,6 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
     };
 };
 
-  struct SkeletonPass : public FunctionPass {
-    static char ID;
-    SkeletonPass() : FunctionPass(ID) {}
-
-    virtual bool runOnFunction(Function &F) {
-
-      return false;
-    }
-  };
 }
 
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
