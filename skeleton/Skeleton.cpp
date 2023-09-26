@@ -3,25 +3,18 @@
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include  <iostream>
-
 using namespace llvm;
 
 namespace {
 
-/*
- * https://github.com/alexjung/Writing-an-LLVM-Pass-using-the-new-PassManager
- * and
- * https://llvm.org/docs/WritingAnLLVMNewPMPass.html
- * are indispensable for getting a basic understanding of the pass architecture of llvm.
- */
 struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
-
-    PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
-        std::cout << "SkeletonPass in function: " << F.getName().str() << std::endl;
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
+        // TK loop over functions
+        errs() << "I saw a function called " << M.getName().str() << "!\n";
         return PreservedAnalyses::all();
     };
 
+    // TK delete?
     static bool isRequired() {
         return true;
     }
@@ -29,23 +22,17 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
 
 }
 
-void registerHelloWorldPassBuilderCallback(PassBuilder &PB) {
-    PB.registerPipelineParsingCallback(
-        [](StringRef Name, FunctionPassManager &FPM, ArrayRef<PassBuilder::PipelineElement>) {
-            if (Name == "skeleton") {
-                FPM.addPass(SkeletonPass());
-                return true;
-            }
-            return false;
-        }
-    );
-}
-
-PassPluginLibraryInfo getHelloWorldPluginInfo() {
-    return {LLVM_PLUGIN_API_VERSION, "Skeleton", LLVM_VERSION_STRING, registerHelloWorldPassBuilderCallback};
-}
-
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
-  return getHelloWorldPluginInfo();
+    return {
+        .APIVersion = LLVM_PLUGIN_API_VERSION,
+        .PluginName = "Skeleton pass",
+        .PluginVersion = "v0.1",
+        .RegisterPassBuilderCallbacks = [](PassBuilder &PB) {
+            PB.registerPipelineStartEPCallback(
+                [](ModulePassManager &MPM, OptimizationLevel Level) {
+                    MPM.addPass(SkeletonPass());
+                });
+        }
+    };
 }

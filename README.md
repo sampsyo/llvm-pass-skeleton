@@ -14,4 +14,4 @@ Build:
 
 Run:
 
-    $ clang -fpass-plugin=build/skeleton/libSkeleton.so something.c
+    $ clang -fpass-plugin=build/skeleton/SkeletonPass.dylib something.c
