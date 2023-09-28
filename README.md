@@ -14,4 +14,4 @@ Build:
 
 Run:
 
-    $ clang -fpass-plugin=`ls build/skeleton/SkeletonPass.*` something.c
+    $ clang -fpass-plugin=`echo build/skeleton/SkeletonPass.*` something.c
