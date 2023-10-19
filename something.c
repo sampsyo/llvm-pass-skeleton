@@ -1,10 +1,25 @@
 #include <stdio.h>
 
+void function1() {
+    printf("Inside function1\n");
+}
+
+void function2() {
+    printf("Inside function2\n");
+}
+
 int main() {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 10; j++) {
-            int k = 0;
-        }
+    int x = 5;
+    int y = 10;
+    void (*fun_ptr)(void);
+
+    if (x < y) {
+        fun_ptr = &function1;
+    } else {
+        fun_ptr = &function2;
     }
+
+    fun_ptr();
+
     return 0;
 }
