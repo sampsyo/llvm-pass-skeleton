@@ -22,35 +22,37 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
     int branchNumber = 0;
 
     for (Function &F : M) {
+      if (F.isDeclaration()) {
+        continue;
+      }
+
+      bool flag = false;
       for (BasicBlock &BB : F) {
         for (Instruction &I : BB) {
-          if (isa<BranchInst>(I)) {
-            BranchInst *BI = dyn_cast<BranchInst>(&I);
-            if (BI->isConditional()) {
-              BasicBlock *trueBranch = BI->getSuccessor(0);
-              if (trueBranch) {
+          if (auto *BI = dyn_cast<BranchInst>(&I)) {
+              int numSuccessors = BI->getNumSuccessors();
+              for (int i = 0; i < numSuccessors; ++i) {
+                BasicBlock *branch = BI->getSuccessor(i);
                 std::string opcodeName = BI->getOpcodeName();
                 std::string branchID = opcodeName + "_" + std::to_string(branchNumber);
                 std::string fileName = F.getParent()->getSourceFileName();
 
                 int lineNumber = BI->getDebugLoc().getLine();
-                int targetLine = trueBranch->getFirstNonPHI()->getDebugLoc().getLine();
+                int targetLine = branch->getFirstNonPHI()->getDebugLoc().getLine();
                 branchDictionary[branchID] = std::make_tuple(fileName, lineNumber, targetLine);
                 branchNumber += 1;
+                flag = true;
               }
-            }
-          } else if (isa<CallInst>(&I)) {
-            CallInst *Call = dyn_cast<CallInst>(&I);
-            if (Call->getCalledFunction() == nullptr) {
-              std::string opcodeName = Call->getOpcodeName();
-              Value *functionPointer = Call->getCalledOperand();
-              outs() << opcodeName << '_' << functionPointer << "\n";
-            }
           }
         }
       }
+      if (flag) {
+        errs() << F.getName() << ": func_" << &F << "\n";
+        flag = false;
+      }
     }
 
+    errs() << "Dictionary: " << "\n";
     for (const auto &entry : branchDictionary) {
       const std::string &branchID = entry.first;
       const std::tuple<std::string, int, int> &location = entry.second;
