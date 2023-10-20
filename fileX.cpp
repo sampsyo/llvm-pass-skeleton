@@ -18,6 +18,5 @@ int main() {
     c = c + 1;
   }
 
-  c += 1;
   return c;
 }

@@ -30,6 +30,9 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
       for (BasicBlock &BB : F) {
         for (Instruction &I : BB) {
           if (auto *BI = dyn_cast<BranchInst>(&I)) {
+              if (BI->isUnconditional()) {
+                continue;
+              }
               int numSuccessors = BI->getNumSuccessors();
               for (int i = 0; i < numSuccessors; ++i) {
                 BasicBlock *branch = BI->getSuccessor(i);
@@ -52,7 +55,6 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
       }
     }
 
-    errs() << "Dictionary: " << "\n";
     for (const auto &entry : branchDictionary) {
       const std::string &branchID = entry.first;
       const std::tuple<std::string, int, int> &location = entry.second;
