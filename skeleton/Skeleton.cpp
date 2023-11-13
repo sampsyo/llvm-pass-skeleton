@@ -1,51 +1,56 @@
-#include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/DebugInfoMetadata.h"
-#include "llvm/IR/Instruction.h"
-#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
 #include "llvm/Pass.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
-
-#include "llvm/IR/Function.h"
-#include "llvm/IR/Instructions.h"
-
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
 using namespace llvm;
 
 namespace {
 
 struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
-  //  Key Points Detection (Goal 1):
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
     std::map<std::string, std::tuple<std::string, int, int>> branchDictionary;
 
     int branchNumber = 0;
 
-    for (Function &F : M) {
-      if (F.isDeclaration()) {
-        continue;
-      }
+    for (Function &F : M.functions()) {
+
+      LLVMContext &Ctx = F.getContext();
+      std::vector<Type *> paramTypes = {Type::getInt8PtrTy(Ctx)};
+      Type *retType = Type::getVoidTy(Ctx);
+      FunctionType *logFuncType = FunctionType::get(retType, paramTypes, false);
+      FunctionCallee logFunc = F.getParent()->getOrInsertFunction("logPrint", logFuncType);
 
       bool flag = false;
-      for (BasicBlock &BB : F) {
-        for (Instruction &I : BB) {
+      for (BasicBlock &B : F) {
+        std::string fileName = F.getParent()->getSourceFileName();
+        
+        for (Instruction &I : B) {
           if (auto *BI = dyn_cast<BranchInst>(&I)) {
-              if (BI->isUnconditional()) {
-                continue;
-              }
-              int numSuccessors = BI->getNumSuccessors();
-              for (int i = 0; i < numSuccessors; ++i) {
-                BasicBlock *branch = BI->getSuccessor(i);
-                std::string opcodeName = BI->getOpcodeName();
-                std::string branchID = opcodeName + "_" + std::to_string(branchNumber);
-                std::string fileName = F.getParent()->getSourceFileName();
+            if (BI->isConditional()) {
+              const DebugLoc &Loc = BI->getDebugLoc();
 
-                int lineNumber = BI->getDebugLoc().getLine();
-                int targetLine = branch->getFirstNonPHI()->getDebugLoc().getLine();
-                branchDictionary[branchID] = std::make_tuple(fileName, lineNumber, targetLine);
-                branchNumber += 1;
-                flag = true;
+              if (Loc) {
+                std::string opcodeName = BI->getOpcodeName();
+                int startLine = Loc.getLine();
+
+                for (int i = 0; i < BI->getNumSuccessors(); ++i) {
+                  BasicBlock *branch = BI->getSuccessor(i);
+                  std::string branchID = opcodeName + "_" + std::to_string(branchNumber);
+
+                  int targetLine = branch->getFirstNonPHI()->getDebugLoc().getLine();
+                  branchDictionary[branchID] = std::make_tuple(fileName, startLine, targetLine);
+                  branchNumber += 1;
+
+                  IRBuilder<> builder(&*branch->getFirstInsertionPt());
+                  Value* args[] = {builder.CreateGlobalStringPtr(branchID)};
+                  builder.CreateCall(logFunc, args);
+
+                  flag = true;
+                }
               }
+            }
           }
         }
       }
@@ -55,14 +60,16 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
       }
     }
 
+    errs() << "Branch Dictionary:\n";
     for (const auto &entry : branchDictionary) {
       const std::string &branchID = entry.first;
       const std::tuple<std::string, int, int> &location = entry.second;
       errs() << branchID << ": " << std::get<0>(location) << ", "
              << std::get<1>(location) << ", " << std::get<2>(location) << "\n";
     }
+
     return PreservedAnalyses::all();
-  };
+  }
 };
 
 } // namespace
