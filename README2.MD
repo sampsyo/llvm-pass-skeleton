@@ -6,6 +6,10 @@ It's for LLVM 17.
 **Part 1: Biqing Su(bsu5)**
 
 # Compile & Run
+1. Make the script executable by running `chmod +x setup_and_run.sh` in the terminal.
+2. Execute the script by typing `./setup_and_run.sh`.
+
+# Manual Run
 ```
 $ cc -c rtlib.c
 $ clang -fpass-plugin='build/skeleton/SkeletonPass.dylib' -c fileX.c -g
@@ -27,8 +31,9 @@ int main() {
   void (*fun_ptr)(int) = &fun;
   (*fun_ptr)(10);
 
+  int b;
   for (c = 0; c < 3; c++) {
-    c = c + 1;
+    b = c + 1;
   }
 
   return c;
@@ -36,18 +41,14 @@ int main() {
 ```
 
 # Output
-1. run `clang -fpass-plugin='build/skeleton/SkeletonPass.dylib' -c fileX.c -g`, print the dictionary in format: `<branch ID>: <source code file name>, <line number>, <target line number>`:
 ```
-main: func_0x14363a0a8
+main: func_0x147e4af98
 Branch Dictionary:
-br_0: fileX.c, 13, 14
-br_1: fileX.c, 13, 17
-```
-2. run `./a.out`, print the collected trace records:
-```
+br_0: fileX.c, 14, 15
+br_1: fileX.c, 14, 18
 Value of a is 10
+br_0
 br_0
 br_0
 br_1
 ```
-
