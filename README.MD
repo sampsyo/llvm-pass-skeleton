@@ -2,14 +2,14 @@
 
 It's for LLVM 17.
 
-# Contribution
+## Contribution
 **Part 1: Biqing Su(bsu5)**
 
-# Compile & Run
+## Compile & Run
 1. Make the script executable by running `chmod +x setup_and_run.sh` in the terminal.
 2. Execute the script by typing `./setup_and_run.sh`.
 
-# Input
+## Input
 ```c
 #include <stdio.h>
 
@@ -32,7 +32,7 @@ int main() {
 }
 ```
 
-# Output
+## Output
 ```
 main: func_0x147e4af98
 Branch Dictionary:
@@ -45,7 +45,7 @@ br_0
 br_1
 ```
 
-# Manually Run
+## Manually Run
 ```
 $ cc -c rtlib.c
 $ clang -fpass-plugin='build/skeleton/SkeletonPass.dylib' -c fileX.c -g
