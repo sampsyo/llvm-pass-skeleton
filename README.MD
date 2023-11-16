@@ -45,8 +45,14 @@ br_0
 br_1
 ```
 
-## Manually Run
+## Manually Compile & Run
 ```
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ cd ..
+
 $ cc -c rtlib.c
 $ clang -fpass-plugin='build/skeleton/SkeletonPass.dylib' -c fileX.c -g
 $ cc fileX.o rtlib.o
