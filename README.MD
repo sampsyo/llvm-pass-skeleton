@@ -9,14 +9,6 @@ It's for LLVM 17.
 1. Make the script executable by running `chmod +x setup_and_run.sh` in the terminal.
 2. Execute the script by typing `./setup_and_run.sh`.
 
-# Manual Run
-```
-$ cc -c rtlib.c
-$ clang -fpass-plugin='build/skeleton/SkeletonPass.dylib' -c fileX.c -g
-$ cc fileX.o rtlib.o
-$ ./a.out
-```
-
 # Input
 ```c
 #include <stdio.h>
@@ -51,4 +43,12 @@ br_0
 br_0
 br_0
 br_1
+```
+
+# Manually Run
+```
+$ cc -c rtlib.c
+$ clang -fpass-plugin='build/skeleton/SkeletonPass.dylib' -c fileX.c -g
+$ cc fileX.o rtlib.o
+$ ./a.out
 ```
